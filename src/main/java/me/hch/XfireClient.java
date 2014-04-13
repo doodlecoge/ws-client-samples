@@ -24,18 +24,30 @@ import java.util.Set;
  */
 public class XfireClient {
     public static void main(String[] args) throws Exception {
-//        String hosid = "ZYYY";
-//        String dptid = "102";
-//        String docid = "";
-//        String date = "2014-04-13";
-//        String apm = "1";
-
         String hosid = "ZYYY";
-        String dptid = "100";
-        String docid = "13302";
-        String date = "2014-04-14";
+        String dptid = "102";
+        String docid = "";
+        String date = "2014-04-13";
         String apm = "1";
 
+//        String hosid = "ZYYY";
+//        String dptid = "100";
+//        String docid = "13302";
+//        String date = "2014-04-14";
+//        String apm = "1";
+
+//
+//     getNoInfo(hosid, dptid, docid, date, apm);
+        abc();
+    }
+
+
+    public static void getNoInfo(
+            String hosid,
+            String dptid,
+            String docid,
+            String date,
+            String apm) throws Exception {
         String url = WsdlUrlConf.getString(hosid);
 
         String cont = FileUtils.getFileContent("confidential/no-info-req.xml");
@@ -47,17 +59,18 @@ public class XfireClient {
 
         System.out.println(cont);
 
-//        String ret = getXfireService(url, "getDtNoInfo", cont);
-//        dump("getDtNoInfo." + hosid + ".xml", ret);
 
         String ret = getXfireService(url, "getDtNoInfo", cont);
-        dump("getDtNoInfo.dt." + hosid + ".xml", ret);
+
+        if (docid == null || docid.trim().equals(""))
+            FileUtils.dump("getDtNoInfo.dp." + hosid + ".xml", ret);
+        else
+            FileUtils.dump("getDtNoInfo.dt." + hosid + ".xml", ret);
     }
 
-    public static void aaa() {
+    public static void abc() {
         Set<String> names = WsdlUrlConf.getNames();
         for (String hospitalId : names) {
-            hospitalId = "ZYYY";
 
             String url = WsdlUrlConf.getString(hospitalId);
             try {
@@ -71,7 +84,35 @@ public class XfireClient {
                     String fileName = opMap.get(op);
                     String content = constructXml(fileName, hospitalId);
                     String ret = getXfireService(url, op, content);
-                    dump(op + "." + hospitalId + ".xml", ret);
+                    FileUtils.dump(op + ".xfire." + hospitalId + ".xml", ret);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(hospitalId);
+            }
+
+            break;
+        }
+    }
+
+    public static void def() {
+        Set<String> names = WsdlUrlConf.getNames();
+        for (String hospitalId : names) {
+            hospitalId = "SLBB";
+
+            String url = WsdlUrlConf.getString(hospitalId);
+            try {
+                Map<String, String> opMap = new HashMap<String, String>();
+                opMap.put("getDepartInfo", "confidential/basic-info-req.xml");
+                opMap.put("getDoctorInfo", "confidential/basic-info-req.xml");
+                opMap.put("getDepartWorkInfo", "confidential/dp-work-req.xml");
+                opMap.put("getDoctorWorkInfo", "confidential/dp-work-req.xml");
+
+                for (String op : opMap.keySet()) {
+                    String fileName = opMap.get(op);
+                    String content = constructXml(fileName, hospitalId);
+                    String ret = getAxis2Service(url, op, content);
+                    FileUtils.dump(op + ".axis2." + hospitalId + ".xml", ret);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -105,7 +146,7 @@ public class XfireClient {
         return (String) results[0];
     }
 
-    public static String getDepartInfo2(String url, String xml) throws AxisFault {
+    public static String getAxis2Service(String url, String operation, String xml) throws AxisFault {
         RPCServiceClient serviceClient = new RPCServiceClient();
         Options options = serviceClient.getOptions();
         EndpointReference targetEPR = new EndpointReference(url);
@@ -116,7 +157,7 @@ public class XfireClient {
         //设置连接超时时间
         options.setTimeOutInMilliSeconds(1000 * 60);
 
-        QName qname = new QName("http://ws.apache.org/axis2", "getDepartInfo");
+        QName qname = new QName("http://ws.apache.org/axis2", operation);
 
         String ret = (String) serviceClient.invokeBlocking(
                 qname,
@@ -127,14 +168,7 @@ public class XfireClient {
         return ret;
     }
 
-    public static void dump(String filename, String content) throws IOException {
-        BufferedWriter bw = new BufferedWriter(
-                new FileWriter(filename)
-        );
-        bw.write(content);
-        bw.flush();
-        bw.close();
-    }
+
 
 
 }

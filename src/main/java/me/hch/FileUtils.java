@@ -1,9 +1,6 @@
 package me.hch;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * Created by Administrator on 14-4-12.
@@ -14,11 +11,24 @@ public class FileUtils {
         BufferedInputStream bis = new BufferedInputStream(is);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        int b = -1;
+        int b;
         while ((b = bis.read()) != -1) {
             baos.write(b);
         }
 
         return baos.toString();
+    }
+
+    public static void dump(String fileName, String content) {
+        try {
+            BufferedWriter bw = new BufferedWriter(
+                    new FileWriter(fileName)
+            );
+            bw.write(content);
+            bw.flush();
+            bw.close();
+        } catch (IOException e) {
+            throw new WsClientException(e);
+        }
     }
 }
