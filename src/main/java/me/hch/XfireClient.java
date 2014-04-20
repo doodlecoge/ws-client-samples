@@ -38,7 +38,7 @@ public class XfireClient {
 
 //
 //     getNoInfo(hosid, dptid, docid, date, apm);
-        abc();
+        def();
     }
 
 
@@ -87,18 +87,14 @@ public class XfireClient {
                     FileUtils.dump(op + ".xfire." + hospitalId + ".xml", ret);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 System.out.println(hospitalId);
             }
-
-            break;
         }
     }
 
     public static void def() {
         Set<String> names = WsdlUrlConf.getNames();
         for (String hospitalId : names) {
-            hospitalId = "SLBB";
 
             String url = WsdlUrlConf.getString(hospitalId);
             try {
@@ -118,8 +114,6 @@ public class XfireClient {
                 e.printStackTrace();
                 System.out.println(hospitalId);
             }
-
-            break;
         }
     }
 
